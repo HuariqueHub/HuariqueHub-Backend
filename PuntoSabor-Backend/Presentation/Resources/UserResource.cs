@@ -10,5 +10,6 @@ public record UserResource(
     int Id,
     string Name,
     string Email,
+    string Role,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

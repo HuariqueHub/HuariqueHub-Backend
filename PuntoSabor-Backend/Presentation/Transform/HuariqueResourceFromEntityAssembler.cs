@@ -22,6 +22,16 @@ public static class HuariqueResourceFromEntityAssembler
             entity.Rating,
             entity.District,
             entity.Near,
+            entity.OwnerId,
+            entity.Address,
+            entity.Phone,
+            entity.Description,
+            entity.ImageUrl,
+            entity.OpenAt,
+            entity.CloseAt,
+            entity.DeliveryAvailable,
+            entity.TakeawayAvailable,
+            entity.DineInAvailable,
             entity.CreatedAt,
             entity.UpdatedAt
         );

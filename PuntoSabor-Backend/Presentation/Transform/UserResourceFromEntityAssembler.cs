@@ -17,6 +17,7 @@ public static class UserResourceFromEntityAssembler
             entity.Id,
             entity.Name,
             entity.Email,
+            entity.Role.ToString().ToLowerInvariant(),
             entity.CreatedAt,
             entity.UpdatedAt
         );

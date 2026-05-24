@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
+using PuntoSabor_Backend.Auth.Domain.Model;
 using PuntoSabor_Backend.Auth.Domain.Repositories;
 using PuntoSabor_Backend.Presentation.Resources;
 using PuntoSabor_Backend.Presentation.Transform;
@@ -61,6 +62,19 @@ public class UsersController(
         return Ok(resources);
     }
 
+    [HttpGet("{id:int}")]
+    [SwaggerOperation("Get User By Id", "Returns a single user by ID.", OperationId = "GetUserById")]
+    [SwaggerResponse(200, "Usuario encontrado.", typeof(UserResource))]
+    [SwaggerResponse(404, "Usuario no encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    {
+        var user = await users.FindByIdAsync(id, ct);
+        if (user is null)
+            return NotFound(new ErrorResource("Usuario no encontrado."));
+
+        return Ok(UserResourceFromEntityAssembler.ToResourceFromEntity(user));
+    }
+
     /**
      * <summary>
      *     Crea un nuevo usuario.
@@ -82,6 +96,12 @@ public class UsersController(
 
         if (string.IsNullOrWhiteSpace(resource.Email))
             return BadRequest(new ErrorResource("El campo 'email' es obligatorio."));
+
+        if (string.IsNullOrWhiteSpace(resource.Password))
+            return BadRequest(new ErrorResource("El campo 'password' es obligatorio."));
+
+        if (resource.Password.Length < 6)
+            return BadRequest(new ErrorResource("La contraseña debe tener al menos 6 caracteres."));
 
         var name = resource.Name.Trim();
         var email = resource.Email.Trim();
@@ -110,5 +130,32 @@ public class UsersController(
         var createdResource = UserResourceFromEntityAssembler.ToResourceFromEntity(entity);
 
         return CreatedAtAction(nameof(Search), new { email = entity.Email }, createdResource);
+    }
+
+    [HttpPatch("{id:int}/role")]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [SwaggerOperation("Update User Role", "Changes the role of an existing user (consumer/owner).", OperationId = "UpdateUserRole")]
+    [SwaggerResponse(200, "Rol actualizado.", typeof(UserResource))]
+    [SwaggerResponse(400, "Rol inválido.", typeof(ErrorResource))]
+    [SwaggerResponse(404, "Usuario no encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateUserRoleResource resource, CancellationToken ct)
+    {
+        if (resource is null || string.IsNullOrWhiteSpace(resource.Role))
+            return BadRequest(new ErrorResource("El campo 'role' es obligatorio."));
+
+        var normalized = resource.Role.Trim().ToLowerInvariant();
+        if (normalized != "consumer" && normalized != "owner")
+            return BadRequest(new ErrorResource("El rol debe ser 'consumer' u 'owner'."));
+
+        var user = await users.FindByIdAsync(id, ct);
+        if (user is null)
+            return NotFound(new ErrorResource("Usuario no encontrado."));
+
+        user.Role = normalized == "owner" ? UserRole.Owner : UserRole.Consumer;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await unitOfWork.CompleteAsync(ct);
+
+        return Ok(UserResourceFromEntityAssembler.ToResourceFromEntity(user));
     }
 }

@@ -13,7 +13,10 @@ public interface IHuariqueRepository
     Task<IEnumerable<Huarique>> SearchAsync(
         string? q,
         bool? near,
+        int? ownerId,
         CancellationToken ct = default);
+
+    Task<IEnumerable<Huarique>> FindByOwnerIdAsync(int ownerId, CancellationToken ct = default);
 
     Task<Huarique?> FindByIdAsync(
         int id,
@@ -27,4 +30,6 @@ public interface IHuariqueRepository
         Huarique huarique,
         IDictionary<string, object> patch,
         CancellationToken ct = default);
+
+    Task DeleteAsync(Huarique huarique, CancellationToken ct = default);
 }

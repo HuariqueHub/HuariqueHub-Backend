@@ -3,26 +3,27 @@ using PuntoSabor_Backend.Presentation.Resources;
 
 namespace PuntoSabor_Backend.Presentation.Transform;
 
-/**
- * <summary>
- *     Convierte un recurso de creación de huarique en una entidad Huarique.
- * </summary>
- */
-
 public static class CreateHuariqueEntityFromResourceAssembler
 {
     public static Huarique ToEntityFromResource(CreateHuariqueResource resource)
-    {
-        return new Huarique
+        => new()
         {
             Name = resource.Name.Trim(),
-            District = resource.District.Trim(),
+            Category = resource.Category.Trim(),
             CategoryId = resource.CategoryId,
             Price = resource.Price,
-            
+            District = resource.District.Trim(),
             Rating = 0,
             Near = false,
-            Category = string.Empty
+            OwnerId = resource.OwnerId,
+            Address = resource.Address?.Trim(),
+            Phone = resource.Phone?.Trim(),
+            Description = resource.Description?.Trim(),
+            ImageUrl = resource.ImageUrl?.Trim(),
+            OpenAt = resource.OpenAt?.Trim(),
+            CloseAt = resource.CloseAt?.Trim(),
+            DeliveryAvailable = resource.DeliveryAvailable,
+            TakeawayAvailable = resource.TakeawayAvailable,
+            DineInAvailable = resource.DineInAvailable
         };
-    }
 }

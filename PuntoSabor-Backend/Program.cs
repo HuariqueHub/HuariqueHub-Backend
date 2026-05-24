@@ -1,10 +1,19 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using PuntoSabor_Backend.Auth.Application.Services;
 using PuntoSabor_Backend.Auth.Domain.Repositories;
 using PuntoSabor_Backend.Auth.Infrastructure.Persistence.EFC.Repositories;
+using PuntoSabor_Backend.Auth.Infrastructure.Services;
 using PuntoSabor_Backend.Discovery.Domain.Repositories;
 using PuntoSabor_Backend.Discovery.Infrastructure.Persistence.EFC.Repositories;
+using PuntoSabor_Backend.Favorites.Domain.Repositories;
+using PuntoSabor_Backend.Favorites.Infrastructure.Persistence.EFC.Repositories;
 using PuntoSabor_Backend.Memberships.Domain.Repositories;
 using PuntoSabor_Backend.Memberships.Infrastructure.Persistence.EFC.Repositories;
+using SubscriptionRepository = PuntoSabor_Backend.Memberships.Infrastructure.Persistence.EFC.Repositories.SubscriptionRepository;
 using PuntoSabor_Backend.Promotions.Domain.Repositories;
 using PuntoSabor_Backend.Promotions.Infrastructure.Persistence.EFC.Repositories;
 using PuntoSabor_Backend.Reviews.Domain.Repositories;
@@ -40,9 +49,12 @@ var connectionString = hasEnvConnection
     : builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrWhiteSpace(connectionString))
-{
     throw new InvalidOperationException("Missing database connection string. Set env vars or ConnectionStrings:DefaultConnection.");
-}
+
+// JWT secret from env var or appsettings
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? builder.Configuration["Jwt:Secret"]
+    ?? throw new InvalidOperationException("JWT secret is not configured.");
 
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -60,15 +72,53 @@ builder.Services.AddScoped<IPlanRepository, PlanRepository>();
 builder.Services.AddScoped<IPromoRepository, PromoRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+
+// Services
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 // Controllers + JSON
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-// Swagger
+// Swagger with JWT support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.EnableAnnotations();
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Description = "JWT Bearer token. Ejemplo: Bearer {token}",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 const string corsPolicyName = "PuntoSaborCors";
@@ -81,13 +131,13 @@ builder.Services.AddCors(options =>
                 "http://localhost:5173",
                 "https://puntosabor.netlify.app",
                 "https://frontend-punto-sabor.vercel.app",
-                "https://pflavor-frontend.vercel.app"
+                "https://pflavor-frontend.vercel.app",
+                "https://huariquehub.github.io"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
-
 
 var app = builder.Build();
 
@@ -115,6 +165,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseCors(corsPolicyName);
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

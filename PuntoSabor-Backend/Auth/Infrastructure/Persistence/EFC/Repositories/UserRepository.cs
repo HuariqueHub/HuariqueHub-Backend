@@ -30,8 +30,10 @@ public class UserRepository(AppDbContext context) : IUserRepository
         return await query.AsNoTracking().ToListAsync(ct);
     }
 
+    public async Task<User?> FindByIdAsync(int id, CancellationToken ct = default)
+        => await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct);
+
     public async Task AddAsync(User user, CancellationToken ct = default)
-    
     {
         await context.Users.AddAsync(user, ct);
     }

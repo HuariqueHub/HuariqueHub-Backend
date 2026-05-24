@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PuntoSabor_Backend.Auth.Domain.Model;
 using PuntoSabor_Backend.Discovery.Domain.Model;
+using PuntoSabor_Backend.Favorites.Domain.Model;
 using PuntoSabor_Backend.Memberships.Domain.Model;
+using Subscription = PuntoSabor_Backend.Memberships.Domain.Model.Subscription;
 using PuntoSabor_Backend.Promotions.Domain.Model;
 using PuntoSabor_Backend.Reviews.Domain.Model;
 
@@ -32,6 +34,10 @@ public class AppDbContext : DbContext
     
     public DbSet<Review> Reviews { get; set; }
 
+    public DbSet<Favorite> Favorites { get; set; }
+
+    public DbSet<Subscription> Subscriptions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -50,5 +56,17 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Plan>()
             .Property(p => p.Id)
             .HasMaxLength(50);
+
+        modelBuilder.Entity<Favorite>().ToTable("Favorites");
+        modelBuilder.Entity<Favorite>()
+            .HasIndex(f => new { f.UserId, f.HuariqueId })
+            .IsUnique();
+
+        modelBuilder.Entity<Subscription>().ToTable("Subscriptions");
+        modelBuilder.Entity<Subscription>()
+            .HasOne(s => s.Plan)
+            .WithMany()
+            .HasForeignKey(s => s.PlanId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

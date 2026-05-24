@@ -1,10 +1,12 @@
 using System.Linq;
-using PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
+using BCrypt.Net;
 using PuntoSabor_Backend.Auth.Domain.Model;
+using PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
 using PuntoSabor_Backend.Discovery.Domain.Model;
 using PuntoSabor_Backend.Memberships.Domain.Model;
 using PuntoSabor_Backend.Promotions.Domain.Model;
 using PuntoSabor_Backend.Reviews.Domain.Model;
+using Subscription = PuntoSabor_Backend.Memberships.Domain.Model.Subscription;
 
 namespace PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
 
@@ -45,7 +47,8 @@ if (!context.Huariques.Any())
             Price = 22,
             Rating = 4.6,
             District = "Surco",
-            Near = true
+            Near = true,
+            OwnerId = 2
         },
 
         new Huarique {
@@ -56,7 +59,8 @@ if (!context.Huariques.Any())
             Price = 28,
             Rating = 4.8,
             District = "Chorrillos",
-            Near = false
+            Near = false,
+            OwnerId = 2
         },
 
         new Huarique {
@@ -274,13 +278,14 @@ if (!context.Huariques.Any())
         // PROMOS
         if (!context.Promos.Any())
         {
+            var now = DateTime.UtcNow;
             context.Promos.AddRange(
-                new Promo { Id = 1, Title = "2x1 Pollo Hoy",        Note = "Locales seleccionados" },
-                new Promo { Id = 2, Title = "Menú Marino S/20",     Note = "Lun–Vie 12:00–16:00" },
-                new Promo { Id = 3, Title = "Café + Brownie",       Note = "Solo en Aroma & Sabor" },
-                new Promo { Id = 4, Title = "Parrillada Familiar",  Note = "15% en fines de semana" },
-                new Promo { Id = 5, Title = "Postres 3x2",          Note = "En La Dulcería todo el mes" },
-                new Promo { Id = 6, Title = "Descuento Criollo",    Note = "Platos criollos -10%" }
+                new Promo { Id = 1, Title = "2x1 Pollo Hoy",       Note = "Locales seleccionados",      Type = "2x1",       Discount = 50, HuariqueId = 1, EndDate = now.AddDays(7)  },
+                new Promo { Id = 2, Title = "Menú Marino S/20",    Note = "Lun–Vie 12:00–16:00",        Type = "menu",      Discount = 0,  HuariqueId = 2, EndDate = now.AddDays(14) },
+                new Promo { Id = 3, Title = "Café + Brownie",      Note = "Solo en Aroma & Sabor",      Type = "otro",      Discount = 0,  HuariqueId = 7                             },
+                new Promo { Id = 4, Title = "Parrillada Familiar", Note = "15% en fines de semana",     Type = "descuento", Discount = 15, HuariqueId = 11, EndDate = now.AddDays(30) },
+                new Promo { Id = 5, Title = "Postres 3x2",         Note = "En La Dulcería todo el mes", Type = "otro",      Discount = 33, HuariqueId = 5,  EndDate = now.AddDays(30) },
+                new Promo { Id = 6, Title = "Descuento Criollo",   Note = "Platos criollos -10%",       Type = "descuento", Discount = 10, HuariqueId = 3,  EndDate = now.AddDays(7)  }
             );
         }
 
@@ -294,14 +299,16 @@ if (!context.Huariques.Any())
             );
         }
 
-        // USERS demo
+        // USERS demo — password: demo1234
+        // User 2 (SoyElPepe) es propietario demo con 2 huariques asignados
         if (!context.Users.Any())
         {
+            var demoHash = BCrypt.Net.BCrypt.HashPassword("demo1234");
             context.Users.AddRange(
-                new User { Id = 1, Name = "demo",        Email = "demo@upc.edu.pe" },
-                new User { Id = 2, Name = "SoyElPepe",   Email = "wa@gmail.com" },
-                new User { Id = 3, Name = "Luna C.",     Email = "luna@puntosabor.pe" },
-                new User { Id = 4, Name = "Sebastián",   Email = "sebastian@upc.pe" }
+                new User { Id = 1, Name = "demo",        Email = "demo@upc.edu.pe",      PasswordHash = demoHash, Role = UserRole.Consumer },
+                new User { Id = 2, Name = "SoyElPepe",   Email = "wa@gmail.com",          PasswordHash = demoHash, Role = UserRole.Owner    },
+                new User { Id = 3, Name = "Luna C.",     Email = "luna@puntosabor.pe",    PasswordHash = demoHash, Role = UserRole.Consumer },
+                new User { Id = 4, Name = "Sebastián",   Email = "sebastian@upc.pe",      PasswordHash = demoHash, Role = UserRole.Consumer }
             );
         }
 
@@ -319,6 +326,20 @@ if (!context.Huariques.Any())
                 new Review { Id = 8,  HuariqueId = 11, UserId = 2, Rating = 5, Comment = "Don Mario la rompe con su parrillada familiar.",        CreatedAt = DateTime.Parse("2025-11-05T11:50:00Z") },
                 new Review { Id = 9,  HuariqueId = 12, UserId = 4, Rating = 4, Comment = "Brasa y Carbón deliciosa, atención rápida.",            CreatedAt = DateTime.Parse("2025-11-05T19:00:00Z") },
                 new Review { Id = 10, HuariqueId = 10, UserId = 3, Rating = 5, Comment = "Café Central con el mejor espresso.",                   CreatedAt = DateTime.Parse("2025-11-06T08:45:00Z") }
+            );
+        }
+
+        // SUBSCRIPTIONS
+        if (!context.Subscriptions.Any())
+        {
+            context.Subscriptions.AddRange(
+                // User 2 (SoyElPepe, owner) — Premium plan activo
+                new Subscription { Id = 1, UserId = 2, PlanId = "premium",   StartDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc), Status = "active"    },
+                // User 1 (demo) — Básico activo
+                new Subscription { Id = 2, UserId = 1, PlanId = "basic",     StartDate = new DateTime(2025, 3, 1, 0, 0, 0, DateTimeKind.Utc), Status = "active"    },
+                // User 3 (Luna) — Premium cancelado (histórico)
+                new Subscription { Id = 3, UserId = 3, PlanId = "premium",   StartDate = new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Utc),
+                                   EndDate  = new DateTime(2025, 4, 1, 0, 0, 0, DateTimeKind.Utc), Status = "cancelled" }
             );
         }
 

@@ -27,7 +27,11 @@ public class HuariquesController(
     [SwaggerResponse(200, "Huariques encontrados y retornados.", typeof(IEnumerable<HuariqueResource>))]
     [SwaggerResponse(400, "Solicitud inválida. Verifica los parámetros enviados.", typeof(IEnumerable<HuariqueResource>))]
     [SwaggerResponse(404, "No se encontraron huariques con los filtros enviados.", typeof(IEnumerable<HuariqueResource>))]
-    public async Task<IActionResult> Search([FromQuery] string? q, [FromQuery] bool? near, CancellationToken ct)
+    public async Task<IActionResult> Search(
+        [FromQuery] string? q,
+        [FromQuery] bool? near,
+        [FromQuery] int? ownerId,
+        CancellationToken ct)
     {
         if (q is not null)
         {
@@ -43,9 +47,9 @@ public class HuariquesController(
                 return BadRequest(new ErrorResource("El parámetro 'q' excede el máximo permitido (80 caracteres)."));
         }
 
-        var result = await huariques.SearchAsync(q, near, ct);
+        var result = await huariques.SearchAsync(q, near, ownerId, ct);
 
-        var hasFilters = q is not null || near is not null;
+        var hasFilters = q is not null || near is not null || ownerId is not null;
         if (hasFilters && !result.Any())
             return NotFound(new ErrorResource("No se encontraron huariques con los filtros enviados."));
 
@@ -137,5 +141,20 @@ public class HuariquesController(
 
         var updatedResource = HuariqueResourceFromEntityAssembler.ToResourceFromEntity(existing);
         return Ok(updatedResource);
+    }
+
+    [HttpDelete("{id:int}")]
+    [SwaggerOperation("Delete Huarique", "Deletes a huarique by its owner.", OperationId = "DeleteHuarique")]
+    [SwaggerResponse(204, "El huarique fue eliminado.")]
+    [SwaggerResponse(404, "El huarique no fue encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
+    {
+        var existing = await huariques.FindByIdAsync(id, ct);
+        if (existing is null)
+            return NotFound(new ErrorResource("El huarique no fue encontrado."));
+
+        await huariques.DeleteAsync(existing, ct);
+        await unitOfWork.CompleteAsync(ct);
+        return NoContent();
     }
 }

@@ -15,6 +15,16 @@ public record HuariqueResource(
     double Rating,
     string District,
     bool Near,
+    int? OwnerId,
+    string? Address,
+    string? Phone,
+    string? Description,
+    string? ImageUrl,
+    string? OpenAt,
+    string? CloseAt,
+    bool DeliveryAvailable,
+    bool TakeawayAvailable,
+    bool DineInAvailable,
     DateTime CreatedAt,
     DateTime? UpdatedAt
 );

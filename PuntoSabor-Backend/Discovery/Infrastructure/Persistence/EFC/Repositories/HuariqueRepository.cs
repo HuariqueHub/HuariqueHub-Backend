@@ -16,13 +16,12 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
     public async Task<IEnumerable<Huarique>> SearchAsync(
         string? q,
         bool? near,
+        int? ownerId,
         CancellationToken ct = default)
-    
     {
         var query = context.Huariques.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(q))
-            
         {
             var term = q.ToLowerInvariant();
             query = query.Where(h =>
@@ -34,8 +33,17 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
         if (near.HasValue && near.Value)
             query = query.Where(h => h.Near);
 
+        if (ownerId.HasValue)
+            query = query.Where(h => h.OwnerId == ownerId.Value);
+
         return await query.AsNoTracking().ToListAsync(ct);
     }
+
+    public async Task<IEnumerable<Huarique>> FindByOwnerIdAsync(int ownerId, CancellationToken ct = default)
+        => await context.Huariques
+            .Where(h => h.OwnerId == ownerId)
+            .AsNoTracking()
+            .ToListAsync(ct);
 
     public async Task<Huarique?> FindByIdAsync(int id, CancellationToken ct = default)
     
@@ -69,11 +77,27 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
                 
                 case "district":   huarique.District = value?.ToString() ?? huarique.District; break;
                 
-                case "near":       huarique.Near = Convert.ToBoolean(value); break;
+                case "near":              huarique.Near = Convert.ToBoolean(value); break;
+                case "ownerid":           huarique.OwnerId = value is null ? null : Convert.ToInt32(value); break;
+                case "address":           huarique.Address = value?.ToString(); break;
+                case "phone":             huarique.Phone = value?.ToString(); break;
+                case "description":       huarique.Description = value?.ToString(); break;
+                case "imageurl":          huarique.ImageUrl = value?.ToString(); break;
+                case "openat":            huarique.OpenAt = value?.ToString(); break;
+                case "closeat":           huarique.CloseAt = value?.ToString(); break;
+                case "deliveryavailable": huarique.DeliveryAvailable = Convert.ToBoolean(value); break;
+                case "takeawayavailable": huarique.TakeawayAvailable = Convert.ToBoolean(value); break;
+                case "dininavailable":    huarique.DineInAvailable = Convert.ToBoolean(value); break;
             }
         }
 
         context.Huariques.Update(huarique);
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(Huarique huarique, CancellationToken ct = default)
+    {
+        context.Huariques.Remove(huarique);
         return Task.CompletedTask;
     }
 }

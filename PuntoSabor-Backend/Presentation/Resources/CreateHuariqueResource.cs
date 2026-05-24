@@ -11,7 +11,15 @@ public record CreateHuariqueResource(
     string Category,
     int CategoryId,
     decimal Price,
-    double Rating,
     string District,
-    bool Near
+    int? OwnerId = null,
+    string? Address = null,
+    string? Phone = null,
+    string? Description = null,
+    string? ImageUrl = null,
+    string? OpenAt = null,
+    string? CloseAt = null,
+    bool DeliveryAvailable = false,
+    bool TakeawayAvailable = false,
+    bool DineInAvailable = true
 );
