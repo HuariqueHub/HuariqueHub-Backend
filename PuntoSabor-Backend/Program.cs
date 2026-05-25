@@ -127,14 +127,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(corsPolicyName, policy =>
     {
         policy
-            .SetIsOriginAllowed(origin =>
-            {
-                var host = new Uri(origin).Host;
-                return host == "localhost" ||
-                       origin.Contains("puntosabor")  ||
-                       origin.Contains("pflavor")     ||
-                       origin.Contains("huariquehub");
-            })
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
