@@ -164,8 +164,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors(corsPolicyName);      // ← CORS antes de HttpsRedirection
 app.UseHttpsRedirection();
-app.UseCors(corsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
