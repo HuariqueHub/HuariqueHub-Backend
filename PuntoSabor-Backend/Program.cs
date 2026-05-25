@@ -121,15 +121,23 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-const string corsPolicyName = "PuntoSaborCors";
+const string corsPolicyName = "AllowHuariqueHubFrontend";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicyName, policy =>
     {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.SetIsOriginAllowed(origin =>
+              {
+                  if (string.IsNullOrWhiteSpace(origin)) return false;
+                  if (origin.StartsWith("http://localhost:", StringComparison.OrdinalIgnoreCase)) return true;
+                  if (origin.Contains("huariquehub")) return true;
+                  if (origin.Contains("puntosabor"))  return true;
+                  if (origin.Contains("pflavor"))     return true;
+                  return origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase);
+              })
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -155,9 +163,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseCors(corsPolicyName);      // ← PRIMERO, antes de todo
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors(corsPolicyName);      // ← CORS antes de HttpsRedirection
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
