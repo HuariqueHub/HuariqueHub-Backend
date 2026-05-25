@@ -127,13 +127,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy(corsPolicyName, policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://puntosabor.netlify.app",
-                "https://frontend-punto-sabor.vercel.app",
-                "https://pflavor-frontend.vercel.app",
-                "https://huariquehub.github.io"
-            )
+            .SetIsOriginAllowed(origin =>
+            {
+                var host = new Uri(origin).Host;
+                return host == "localhost" ||
+                       origin.Contains("puntosabor")  ||
+                       origin.Contains("pflavor")     ||
+                       origin.Contains("huariquehub");
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
