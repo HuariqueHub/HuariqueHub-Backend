@@ -78,6 +78,8 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
                 case "district":   huarique.District = value?.ToString() ?? huarique.District; break;
                 
                 case "near":              huarique.Near = Convert.ToBoolean(value); break;
+                case "latitude":          huarique.Latitude = value is null ? null : Convert.ToDouble(value); break;
+                case "longitude":         huarique.Longitude = value is null ? null : Convert.ToDouble(value); break;
                 case "ownerid":           huarique.OwnerId = value is null ? null : Convert.ToInt32(value); break;
                 case "address":           huarique.Address = value?.ToString(); break;
                 case "phone":             huarique.Phone = value?.ToString(); break;

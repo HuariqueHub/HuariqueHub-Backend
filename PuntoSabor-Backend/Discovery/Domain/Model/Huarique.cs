@@ -21,8 +21,12 @@ public class Huarique : AuditableEntity
     public double Rating { get; set; }
     
     public string District { get; set; } = null!;
-    
+
     public bool Near { get; set; }
+
+    // Coordenadas geográficas — opcionales, usadas para mapas y rutas
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 
     public int? OwnerId { get; set; }
 

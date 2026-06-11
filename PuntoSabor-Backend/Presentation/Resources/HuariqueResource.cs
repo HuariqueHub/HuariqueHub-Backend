@@ -15,6 +15,8 @@ public record HuariqueResource(
     double Rating,
     string District,
     bool Near,
+    double? Latitude,
+    double? Longitude,
     int? OwnerId,
     string? Address,
     string? Phone,

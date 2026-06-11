@@ -22,6 +22,8 @@ public static class HuariqueResourceFromEntityAssembler
             entity.Rating,
             entity.District,
             entity.Near,
+            entity.Latitude,
+            entity.Longitude,
             entity.OwnerId,
             entity.Address,
             entity.Phone,

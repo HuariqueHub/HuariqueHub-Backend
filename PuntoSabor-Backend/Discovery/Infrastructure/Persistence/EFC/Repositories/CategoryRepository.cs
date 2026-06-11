@@ -12,10 +12,22 @@ namespace PuntoSabor_Backend.Discovery.Infrastructure.Persistence.EFC.Repositori
  */
 public class CategoryRepository(AppDbContext context) : ICategoryRepository
 {
-    
+
     public async Task<IEnumerable<Category>> ListAsync(CancellationToken ct = default)
-    
+
     {
         return await context.Categories.AsNoTracking().ToListAsync(ct);
+    }
+
+    public async Task<bool> ExistsByNameAsync(string name, CancellationToken ct = default)
+    {
+        return await context.Categories
+            .AsNoTracking()
+            .AnyAsync(c => c.Name.ToLower() == name.ToLower(), ct);
+    }
+
+    public async Task AddAsync(Category category, CancellationToken ct = default)
+    {
+        await context.Categories.AddAsync(category, ct);
     }
 }

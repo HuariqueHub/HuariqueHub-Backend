@@ -15,6 +15,8 @@ public static class CreateHuariqueEntityFromResourceAssembler
             District = resource.District.Trim(),
             Rating = 0,
             Near = false,
+            Latitude = resource.Latitude,
+            Longitude = resource.Longitude,
             OwnerId = resource.OwnerId,
             Address = resource.Address?.Trim(),
             Phone = resource.Phone?.Trim(),

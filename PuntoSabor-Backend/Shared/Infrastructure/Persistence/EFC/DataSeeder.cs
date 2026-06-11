@@ -42,6 +42,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 1,
             Name = "El Brasero",
+            Latitude = -12.1450, Longitude = -76.9900,
             CategoryId = 1,
             Category = "Pollo",
             Price = 22,
@@ -54,6 +55,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 2,
             Name = "Rincón Marino",
+            Latitude = -12.1750, Longitude = -77.0150,
             CategoryId = 2,
             Category = "Marina",
             Price = 28,
@@ -66,6 +68,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 3,
             Name = "Doña Peta Criolla",
+            Latitude = -12.1490, Longitude = -77.0210,
             CategoryId = 3,
             Category = "Criolla",
             Price = 25,
@@ -77,6 +80,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 4,
             Name = "Chifa San Joy Lao",
+            Latitude = -12.1210, Longitude = -77.0290,
             CategoryId = 4,
             Category = "Chifa",
             Price = 21,
@@ -88,6 +92,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 5,
             Name = "La Dulcería",
+            Latitude = -12.0970, Longitude = -77.0360,
             CategoryId = 5,
             Category = "Postres",
             Price = 15,
@@ -99,6 +104,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 6,
             Name = "La Esquinita del Menú",
+            Latitude = -12.1080, Longitude = -76.9990,
             CategoryId = 6,
             Category = "Menú",
             Price = 12,
@@ -110,6 +116,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 7,
             Name = "Café Aroma & Sabor",
+            Latitude = -12.1180, Longitude = -77.0310,
             CategoryId = 7,
             Category = "Café",
             Price = 10,
@@ -121,6 +128,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 8,
             Name = "Pollos Don Tito",
+            Latitude = -12.0790, Longitude = -76.9440,
             CategoryId = 1,
             Category = "Pollo",
             Price = 24,
@@ -132,6 +140,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 9,
             Name = "Mar & Tierra",
+            Latitude = -12.0770, Longitude = -77.0920,
             CategoryId = 2,
             Category = "Marina",
             Price = 30,
@@ -143,6 +152,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 10,
             Name = "Café Central",
+            Latitude = -12.0460, Longitude = -77.0300,
             CategoryId = 7,
             Category = "Café",
             Price = 11,
@@ -154,6 +164,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 11,
             Name = "Parrilladas Don Mario",
+            Latitude = -12.1120, Longitude = -77.0150,
             CategoryId = 8,
             Category = "Parrillas",
             Price = 35,
@@ -165,6 +176,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 12,
             Name = "Brasa y Carbón",
+            Latitude = -12.0860, Longitude = -77.0360,
             CategoryId = 8,
             Category = "Parrillas",
             Price = 38,
@@ -176,6 +188,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 13,
             Name = "Fuego Criollo",
+            Latitude = -12.1590, Longitude = -76.9700,
             CategoryId = 8,
             Category = "Parrillas",
             Price = 36,
@@ -187,6 +200,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 14,
             Name = "La Parrilla del Norte",
+            Latitude = -11.9580, Longitude = -77.0700,
             CategoryId = 8,
             Category = "Parrillas",
             Price = 33,
@@ -198,6 +212,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 15,
             Name = "Punto Grill",
+            Latitude = -12.0990, Longitude = -77.0340,
             CategoryId = 8,
             Category = "Parrillas",
             Price = 40,
@@ -209,6 +224,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 16,
             Name = "La Picantería Peruana",
+            Latitude = -12.1140, Longitude = -77.0130,
             CategoryId = 3,
             Category = "Criolla",
             Price = 27,
@@ -220,6 +236,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 17,
             Name = "La Casa del Postre",
+            Latitude = -12.1100, Longitude = -77.0170,
             CategoryId = 5,
             Category = "Postres",
             Price = 13,
@@ -231,6 +248,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 18,
             Name = "Chifa Ping Chung Long",
+            Latitude = -12.0880, Longitude = -77.0340,
             CategoryId = 4,
             Category = "Chifa",
             Price = 20,
@@ -242,6 +260,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 19,
             Name = "El Sabor Norteño",
+            Latitude = -11.9600, Longitude = -77.0680,
             CategoryId = 3,
             Category = "Criolla",
             Price = 23,
@@ -253,6 +272,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 20,
             Name = "La Ola Marina",
+            Latitude = -12.0920, Longitude = -77.0720,
             CategoryId = 2,
             Category = "Marina",
             Price = 29,
@@ -264,6 +284,7 @@ if (!context.Huariques.Any())
         new Huarique {
             Id = 21,
             Name = "Menu Don Lucho",
+            Latitude = -12.0420, Longitude = -76.9990,
             CategoryId = 6,
             Category = "Menú",
             Price = 12,

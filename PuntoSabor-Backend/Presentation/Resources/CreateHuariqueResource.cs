@@ -12,6 +12,8 @@ public record CreateHuariqueResource(
     int CategoryId,
     decimal Price,
     string District,
+    double? Latitude = null,
+    double? Longitude = null,
     int? OwnerId = null,
     string? Address = null,
     string? Phone = null,
