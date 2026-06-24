@@ -2,18 +2,20 @@ using PuntoSabor_Backend.Shared.Domain.Model;
 
 namespace PuntoSabor_Backend.Discovery.Domain.Model;
 
-/**
- * <summary>
- *     Representa un huarique dentro del sistema, incluyendo su categoría,
- *     precio, ubicación, calificación y datos de auditoría heredados.
- * </summary>
- */
+/// <summary>
+/// Represents a local food establishment registered in the PuntoSabor platform.
+/// </summary>
 public class Huarique : AuditableEntity
 {
+    /// <summary>
+    /// Display name of the huarique shown to explorers.
+    /// </summary>
     public string Name { get; set; } = null!;
-    
+
+    /// <summary>
+    /// Food category associated with this huarique.
+    /// </summary>
     public string Category { get; set; } = null!;
-    
     public int CategoryId { get; set; }
     
     public decimal Price { get; set; }
