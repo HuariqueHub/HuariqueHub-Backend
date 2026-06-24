@@ -37,6 +37,37 @@ public class SubscriptionsController(
         return Ok(SubscriptionResourceFromEntityAssembler.ToResourceFromEntity(sub));
     }
 
+    /**
+     * <summary>
+     *     Comprobante de pago de una suscripción (US25).
+     *     GET /subscriptions/:id/receipt
+     * </summary>
+     */
+    [HttpGet("{id:int}/receipt")]
+    [SwaggerOperation("Get Subscription Receipt", "Returns a downloadable receipt for a subscription payment.", OperationId = "GetSubscriptionReceipt")]
+    [SwaggerResponse(200, "Comprobante.", typeof(ReceiptResource))]
+    [SwaggerResponse(404, "Suscripción no encontrada.", typeof(ErrorResource))]
+    public async Task<IActionResult> GetReceipt(int id, CancellationToken ct)
+    {
+        var sub = await subscriptions.FindByIdAsync(id, ct);
+        if (sub is null) return NotFound(new ErrorResource("Suscripción no encontrada."));
+
+        var receipt = new ReceiptResource(
+            ReceiptNumber: $"PS-{sub.Id:D6}",
+            SubscriptionId: sub.Id,
+            UserId: sub.UserId,
+            PlanId: sub.PlanId,
+            PlanName: sub.Plan?.Name ?? sub.PlanId,
+            Amount: sub.Plan?.Price ?? 0m,
+            Currency: "PEN",
+            Status: sub.Status,
+            IssuedAt: sub.StartDate,
+            PeriodStart: sub.StartDate,
+            PeriodEnd: sub.EndDate
+        );
+        return Ok(receipt);
+    }
+
     [HttpGet("{id:int}")]
     [SwaggerOperation("Get Subscription", "Returns a single subscription by ID.", OperationId = "GetSubscription")]
     [SwaggerResponse(200, "Suscripción.", typeof(SubscriptionResource))]

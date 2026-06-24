@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
 using PuntoSabor_Backend.Discovery.Domain.Repositories;
+using PuntoSabor_Backend.Favorites.Domain.Repositories;
 using PuntoSabor_Backend.Presentation.Resources;
 using PuntoSabor_Backend.Presentation.Transform;
 using PuntoSabor_Backend.Shared.Domain.Repositories;
@@ -14,8 +15,46 @@ namespace PuntoSabor_Backend.Presentation.Controllers;
 [SwaggerTag("Available Huariques Endpoints.")]
 public class HuariquesController(
     IHuariqueRepository huariques,
+    IFavoriteRepository favorites,
     IUnitOfWork unitOfWork) : ControllerBase
 {
+    /**
+     * <summary>
+     *     Sugerencias de huariques para un usuario (US18). Se basan en las
+     *     categorías de sus favoritos; si no tiene favoritos, devuelve los
+     *     mejor calificados.
+     * </summary>
+     */
+    [HttpGet("suggestions")]
+    [SwaggerOperation("Suggest Huariques", "Suggests huariques for a user based on favorites history.", OperationId = "SuggestHuariques")]
+    [SwaggerResponse(200, "Sugerencias.", typeof(IEnumerable<HuariqueResource>))]
+    [SwaggerResponse(400, "Parámetro inválido.", typeof(ErrorResource))]
+    public async Task<IActionResult> Suggestions([FromQuery] int userId, CancellationToken ct)
+    {
+        if (userId <= 0)
+            return BadRequest(new ErrorResource("El parámetro 'userId' debe ser mayor a 0."));
+
+        var all = (await huariques.SearchAsync(null, null, null, ct)).ToList();
+        var favoriteIds = (await favorites.FindByUserIdAsync(userId, ct))
+            .Select(f => f.HuariqueId).ToHashSet();
+
+        var favoriteCategories = all
+            .Where(h => favoriteIds.Contains(h.Id))
+            .Select(h => h.Category)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .ToHashSet();
+
+        IEnumerable<Discovery.Domain.Model.Huarique> suggestions = favoriteCategories.Count > 0
+            // Mismo tipo de comida que ya marcó como favorito, excluyendo los favoritos.
+            ? all.Where(h => favoriteCategories.Contains(h.Category) && !favoriteIds.Contains(h.Id))
+                 .OrderByDescending(h => h.Rating)
+            // Sin historial: populares de la zona (mejor calificados).
+            : all.OrderByDescending(h => h.Rating);
+
+        var resources = suggestions.Take(10).Select(HuariqueResourceFromEntityAssembler.ToResourceFromEntity);
+        return Ok(resources);
+    }
+
     /**
      * <summary>
      *     Busca huariques por texto y/o cercanos.

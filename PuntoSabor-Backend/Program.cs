@@ -18,6 +18,12 @@ using PuntoSabor_Backend.Promotions.Domain.Repositories;
 using PuntoSabor_Backend.Promotions.Infrastructure.Persistence.EFC.Repositories;
 using PuntoSabor_Backend.Reviews.Domain.Repositories;
 using PuntoSabor_Backend.Reviews.Infrastructure.Persistence.EFC.Repositories;
+using PuntoSabor_Backend.Notifications.Domain.Repositories;
+using PuntoSabor_Backend.Notifications.Infrastructure.Persistence.EFC.Repositories;
+using PuntoSabor_Backend.Reports.Domain.Repositories;
+using PuntoSabor_Backend.Reports.Infrastructure.Persistence.EFC.Repositories;
+using PuntoSabor_Backend.UserPreferences.Domain.Repositories;
+using PuntoSabor_Backend.UserPreferences.Infrastructure.Persistence.EFC.Repositories;
 using PuntoSabor_Backend.Shared.Domain.Repositories;
 using PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
 
@@ -74,6 +80,9 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IUserPreferenceRepository, UserPreferenceRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // Services
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -151,6 +160,10 @@ using (var scope = app.Services.CreateScope())
 
         Console.WriteLine(">>> Verificando base de datos...");
         db.Database.EnsureCreated();
+
+        // Crea tablas agregadas tras el despliegue inicial (no usa migraciones).
+        Console.WriteLine(">>> Asegurando tablas adicionales...");
+        SchemaInitializer.EnsureExtraTables(db);
 
         Console.WriteLine(">>> Ejecutando DataSeeder...");
         DataSeeder.Seed(db);

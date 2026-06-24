@@ -6,6 +6,9 @@ using PuntoSabor_Backend.Memberships.Domain.Model;
 using Subscription = PuntoSabor_Backend.Memberships.Domain.Model.Subscription;
 using PuntoSabor_Backend.Promotions.Domain.Model;
 using PuntoSabor_Backend.Reviews.Domain.Model;
+using PuntoSabor_Backend.Notifications.Domain.Model;
+using PuntoSabor_Backend.Reports.Domain.Model;
+using PuntoSabor_Backend.UserPreferences.Domain.Model;
 
 namespace PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
 
@@ -38,6 +41,12 @@ public class AppDbContext : DbContext
 
     public DbSet<Subscription> Subscriptions { get; set; }
 
+    public DbSet<UserPreference> UserPreferences { get; set; }
+
+    public DbSet<Report> Reports { get; set; }
+
+    public DbSet<Notification> Notifications { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -68,5 +77,26 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(s => s.PlanId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<UserPreference>().ToTable("UserPreferences");
+        modelBuilder.Entity<UserPreference>()
+            .HasIndex(p => p.UserId)
+            .IsUnique();
+        modelBuilder.Entity<UserPreference>()
+            .Property(p => p.PreferredCategory).HasMaxLength(80);
+        modelBuilder.Entity<UserPreference>()
+            .Property(p => p.PreferredDistrict).HasMaxLength(120);
+
+        modelBuilder.Entity<Report>().ToTable("Reports");
+        modelBuilder.Entity<Report>()
+            .Property(r => r.Reason).HasMaxLength(500);
+        modelBuilder.Entity<Report>()
+            .Property(r => r.Status).HasMaxLength(20);
+
+        modelBuilder.Entity<Notification>().ToTable("Notifications");
+        modelBuilder.Entity<Notification>()
+            .Property(n => n.Title).HasMaxLength(120);
+        modelBuilder.Entity<Notification>()
+            .Property(n => n.Body).HasMaxLength(500);
     }
 }

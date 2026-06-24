@@ -33,6 +33,9 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task<User?> FindByIdAsync(int id, CancellationToken ct = default)
         => await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, ct);
 
+    public async Task<User?> FindTrackedByEmailAsync(string email, CancellationToken ct = default)
+        => await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
     public async Task AddAsync(User user, CancellationToken ct = default)
     {
         await context.Users.AddAsync(user, ct);
