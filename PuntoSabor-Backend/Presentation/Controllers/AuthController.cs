@@ -42,6 +42,67 @@ public class AuthController(
             user.Role.ToString().ToLowerInvariant(), token));
     }
 
+    [HttpGet("users/{id:int}")]
+    [SwaggerOperation("Get Profile", "Returns the profile of a user by ID.", OperationId = "GetProfile")]
+    [SwaggerResponse(200, "Perfil encontrado.", typeof(UserResource))]
+    [SwaggerResponse(404, "Usuario no encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> GetProfile(int id, CancellationToken ct)
+    {
+        var user = await users.FindByIdAsync(id, ct);
+        if (user is null)
+            return NotFound(new ErrorResource("Usuario no encontrado."));
+
+        return Ok(new UserResource(user.Id, user.Name, user.Email,
+            user.Role.ToString().ToLowerInvariant(), user.CreatedAt, user.UpdatedAt));
+    }
+
+    [HttpPatch("users/{id:int}")]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [SwaggerOperation("Update Profile", "Updates the display name of a user.", OperationId = "UpdateProfile")]
+    [SwaggerResponse(200, "Perfil actualizado.", typeof(UserResource))]
+    [SwaggerResponse(400, "Datos inválidos.", typeof(ErrorResource))]
+    [SwaggerResponse(404, "Usuario no encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> UpdateProfile(int id, [FromBody] UpdateProfileResource resource, CancellationToken ct)
+    {
+        if (resource is null || string.IsNullOrWhiteSpace(resource.Name))
+            return BadRequest(new ErrorResource("El campo 'name' es obligatorio."));
+
+        var name = resource.Name.Trim();
+
+        if (name.Length < 2)
+            return BadRequest(new ErrorResource("El campo 'name' debe tener al menos 2 caracteres."));
+
+        if (name.Length > 80)
+            return BadRequest(new ErrorResource("El campo 'name' excede el máximo permitido (80 caracteres)."));
+
+        var user = await users.FindTrackedByIdAsync(id, ct);
+        if (user is null)
+            return NotFound(new ErrorResource("Usuario no encontrado."));
+
+        user.Name = name;
+        user.UpdatedAt = DateTime.UtcNow;
+        await unitOfWork.CompleteAsync(ct);
+
+        return Ok(new UserResource(user.Id, user.Name, user.Email,
+            user.Role.ToString().ToLowerInvariant(), user.CreatedAt, user.UpdatedAt));
+    }
+
+    [HttpDelete("users/{id:int}")]
+    [SwaggerOperation("Delete Account", "Permanently deletes a user account.", OperationId = "DeleteAccount")]
+    [SwaggerResponse(200, "Cuenta eliminada.", typeof(MessageResource))]
+    [SwaggerResponse(404, "Usuario no encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> DeleteAccount(int id, CancellationToken ct)
+    {
+        var user = await users.FindTrackedByIdAsync(id, ct);
+        if (user is null)
+            return NotFound(new ErrorResource("Usuario no encontrado."));
+
+        users.Remove(user);
+        await unitOfWork.CompleteAsync(ct);
+
+        return Ok(new MessageResource("Cuenta eliminada correctamente."));
+    }
+
     [HttpPost("forgot-password")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Forgot Password", "Starts the password recovery flow for a registered email.", OperationId = "ForgotPassword")]

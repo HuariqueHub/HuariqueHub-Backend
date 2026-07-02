@@ -20,8 +20,12 @@ public interface IUserRepository
     /// Búsqueda rastreada por email para poder actualizar la entidad (US16).
     Task<User?> FindTrackedByEmailAsync(string email, CancellationToken ct = default);
 
+    /// Búsqueda rastreada por id para poder actualizar o eliminar la entidad (CRUD de perfil).
+    Task<User?> FindTrackedByIdAsync(int id, CancellationToken ct = default);
+
     Task AddAsync(
         User user,
         CancellationToken ct = default);
-    
+
+    void Remove(User user);
 }
