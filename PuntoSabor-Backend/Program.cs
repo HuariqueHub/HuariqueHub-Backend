@@ -34,7 +34,8 @@ Console.WriteLine(">>> ENV DB_HOST: " + Environment.GetEnvironmentVariable("DB_H
 Console.WriteLine(">>> ENV DB_PORT: " + Environment.GetEnvironmentVariable("DB_PORT"));
 Console.WriteLine(">>> ENV DB_NAME: " + Environment.GetEnvironmentVariable("DB_NAME"));
 Console.WriteLine(">>> ENV DB_USER: " + Environment.GetEnvironmentVariable("DB_USER"));
-Console.WriteLine(">>> ENV DB_PASSWORD: " + Environment.GetEnvironmentVariable("DB_PASSWORD"));
+Console.WriteLine(">>> ENV DB_PASSWORD: " +
+    (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("DB_PASSWORD")) ? "NOT SET" : "SET"));
 
 // Build connection string from env or config fallback
 var envHost = Environment.GetEnvironmentVariable("DB_HOST");
@@ -183,5 +184,10 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    service = "PuntoSabor Backend"
+}));
 app.MapControllers();
 app.Run();

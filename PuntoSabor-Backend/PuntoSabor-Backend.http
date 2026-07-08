@@ -1,6 +1,22 @@
 @PuntoSabor_Backend_HostAddress = http://localhost:5048
 
-GET {{PuntoSabor_Backend_HostAddress}}/weatherforecast/
+### Get categories
+GET {{PuntoSabor_Backend_HostAddress}}/categories
 Accept: application/json
 
-###
+### Get huariques
+GET {{PuntoSabor_Backend_HostAddress}}/huariques
+Accept: application/json
+
+### Get plans
+GET {{PuntoSabor_Backend_HostAddress}}/plans
+Accept: application/json
+
+### Login
+POST {{PuntoSabor_Backend_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner@huariquehub.com",
+  "password": "123456"
+}
