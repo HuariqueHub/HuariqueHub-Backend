@@ -37,6 +37,9 @@ public class Huarique : AuditableEntity
     public string? Phone { get; set; }
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
+    // Imagen guardada directamente en la base de datos (LONGBLOB)
+    public byte[]? ImageData { get; set; }
+    public string? ImageContentType { get; set; }
     public string? OpenAt { get; set; }
     public string? CloseAt { get; set; }
     public bool DeliveryAvailable { get; set; } = false;

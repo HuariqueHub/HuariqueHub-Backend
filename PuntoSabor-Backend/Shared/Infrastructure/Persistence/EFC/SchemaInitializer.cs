@@ -13,6 +13,20 @@ namespace PuntoSabor_Backend.Shared.Infrastructure.Persistence.EFC;
  */
 public static class SchemaInitializer
 {
+    // Agrega una columna solo si no existe (idempotente, seguro en cada arranque).
+    private static void EnsureColumn(AppDbContext context, string table, string column, string definition)
+    {
+        var exists = context.Database
+            .SqlQueryRaw<int>(
+                "SELECT COUNT(*) AS Value FROM information_schema.COLUMNS " +
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = {0} AND COLUMN_NAME = {1}",
+                table, column)
+            .AsEnumerable()
+            .First();
+
+        if (exists == 0)
+            context.Database.ExecuteSqlRaw($"ALTER TABLE `{table}` ADD COLUMN `{column}` {definition}");
+    }
     public static void EnsureExtraTables(AppDbContext context)
     {
         context.Database.ExecuteSqlRaw("""
@@ -54,6 +68,10 @@ public static class SchemaInitializer
                 `UpdatedAt` DATETIME(6) NULL,
                 PRIMARY KEY (`Id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-            """);
+            """); 
+        // Columnas de imagen en Huariques (la tabla ya existe, EnsureCreated no la altera).
+        EnsureColumn(context, "Huariques", "ImageData", "LONGBLOB NULL");
+        EnsureColumn(context, "Huariques", "ImageContentType", "VARCHAR(100) NULL");
     }
+    
 }

@@ -102,4 +102,17 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
         context.Huariques.Remove(huarique);
         return Task.CompletedTask;
     }
+    public async Task<(byte[] Data, string ContentType)?> GetImageAsync(int id, CancellationToken ct = default)
+    {
+        var row = await context.Huariques
+            .Where(h => h.Id == id && h.ImageData != null)
+            .Select(h => new { h.ImageData, h.ImageContentType })
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ct);
+
+        if (row?.ImageData is null)
+            return null;
+
+        return (row.ImageData, row.ImageContentType ?? "image/jpeg");
+    }
 }
