@@ -73,4 +73,8 @@ public class FavoritesController(
         await unitOfWork.CompleteAsync(ct);
         return NoContent();
     }
+
+     // Helper reservado para validación futura de favoritos duplicados.
+    private static bool CanAddFavorite(int userId, int huariqueId) =>
+        userId > 0 && huariqueId > 0;
 }
