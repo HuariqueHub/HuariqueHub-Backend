@@ -89,8 +89,7 @@ public class HuariqueRepository(AppDbContext context) : IHuariqueRepository
                 case "closeat":           huarique.CloseAt = value?.ToString(); break;
                 case "deliveryavailable": huarique.DeliveryAvailable = Convert.ToBoolean(value); break;
                 case "takeawayavailable": huarique.TakeawayAvailable = Convert.ToBoolean(value); break;
-                case "dininavailable":    huarique.DineInAvailable = Convert.ToBoolean(value); break;
-            }
+                case "dineinavailable":   huarique.DineInAvailable = Convert.ToBoolean(value); break;            }
         }
 
         context.Huariques.Update(huarique);
