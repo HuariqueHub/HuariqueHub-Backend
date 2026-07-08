@@ -196,4 +196,87 @@ public class HuariquesController(
         await unitOfWork.CompleteAsync(ct);
         return NoContent();
     }
+    
+    /**
+     * <summary>
+     *     Sube o reemplaza la imagen de un huarique (la guarda en la base de datos).
+     *     POST /huariques/:id/image  (multipart/form-data, campo "file")
+     * </summary>
+     */
+    [HttpPost("{id:int}/image")]
+    [Consumes("multipart/form-data")]
+    [SwaggerOperation("Upload Huarique Image", "Uploads or replaces the huarique image stored in the database.", OperationId = "UploadHuariqueImage")]
+    [SwaggerResponse(200, "Imagen guardada.", typeof(HuariqueResource))]
+    [SwaggerResponse(400, "Archivo inválido.", typeof(ErrorResource))]
+    [SwaggerResponse(404, "El huarique no fue encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> UploadImage(int id, [FromForm] IFormFile file, CancellationToken ct)
+    {
+        if (file is null || file.Length == 0)
+            return BadRequest(new ErrorResource("Debes enviar un archivo en el campo 'file'."));
+
+        if (file.Length > 5 * 1024 * 1024)
+            return BadRequest(new ErrorResource("La imagen no puede superar los 5 MB."));
+
+        var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+        if (!allowed.Contains(file.ContentType))
+            return BadRequest(new ErrorResource("Formato no permitido. Usa JPEG, PNG o WEBP."));
+
+        var entity = await huariques.FindByIdAsync(id, ct);
+        if (entity is null)
+            return NotFound(new ErrorResource("El huarique no fue encontrado."));
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms, ct);
+
+        entity.ImageData = ms.ToArray();
+        entity.ImageContentType = file.ContentType;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await unitOfWork.CompleteAsync(ct);
+
+        return Ok(HuariqueResourceFromEntityAssembler.ToResourceFromEntity(entity));
+    }
+
+    /**
+     * <summary>
+     *     Devuelve la imagen del huarique guardada en la base de datos.
+     *     GET /huariques/:id/image
+     * </summary>
+     */
+    [HttpGet("{id:int}/image")]
+    [SwaggerOperation("Get Huarique Image", "Returns the huarique image stored in the database.", OperationId = "GetHuariqueImage")]
+    [SwaggerResponse(200, "Imagen encontrada.")]
+    [SwaggerResponse(404, "El huarique no tiene imagen.", typeof(ErrorResource))]
+    public async Task<IActionResult> GetImage(int id, CancellationToken ct)
+    {
+        var image = await huariques.GetImageAsync(id, ct);
+        if (image is null)
+            return NotFound(new ErrorResource("El huarique no tiene imagen."));
+
+        return File(image.Value.Data, image.Value.ContentType);
+    }
+
+    /**
+     * <summary>
+     *     Elimina la imagen del huarique.
+     *     DELETE /huariques/:id/image
+     * </summary>
+     */
+    [HttpDelete("{id:int}/image")]
+    [SwaggerOperation("Delete Huarique Image", "Removes the huarique image from the database.", OperationId = "DeleteHuariqueImage")]
+    [SwaggerResponse(204, "Imagen eliminada.")]
+    [SwaggerResponse(404, "El huarique no fue encontrado.", typeof(ErrorResource))]
+    public async Task<IActionResult> DeleteImage(int id, CancellationToken ct)
+    {
+        var entity = await huariques.FindByIdAsync(id, ct);
+        if (entity is null)
+            return NotFound(new ErrorResource("El huarique no fue encontrado."));
+
+        entity.ImageData = null;
+        entity.ImageContentType = null;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await unitOfWork.CompleteAsync(ct);
+        return NoContent();
+    }
 }

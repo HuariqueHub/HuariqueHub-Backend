@@ -32,4 +32,6 @@ public interface IHuariqueRepository
         CancellationToken ct = default);
 
     Task DeleteAsync(Huarique huarique, CancellationToken ct = default);
+    
+    Task<(byte[] Data, string ContentType)?> GetImageAsync(int id, CancellationToken ct = default);
 }

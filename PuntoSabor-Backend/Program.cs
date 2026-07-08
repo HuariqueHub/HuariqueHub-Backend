@@ -128,6 +128,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+    c.OperationFilter<PuntoSabor_Backend.Shared.Infrastructure.Swagger.FileUploadOperationFilter>();
 });
 
 const string corsPolicyName = "AllowHuariqueHubFrontend";

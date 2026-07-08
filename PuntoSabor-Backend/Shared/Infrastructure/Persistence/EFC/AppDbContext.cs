@@ -98,5 +98,11 @@ public class AppDbContext : DbContext
             .Property(n => n.Title).HasMaxLength(120);
         modelBuilder.Entity<Notification>()
             .Property(n => n.Body).HasMaxLength(500);
+        modelBuilder.Entity<Huarique>()
+            .Property(h => h.ImageData)
+            .HasColumnType("LONGBLOB");
+        modelBuilder.Entity<Huarique>()
+            .Property(h => h.ImageContentType)
+            .HasMaxLength(100);
     }
 }
