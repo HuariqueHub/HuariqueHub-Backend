@@ -16,6 +16,12 @@ public class PromosController(
     IPromoRepository promos,
     IUnitOfWork unitOfWork) : ControllerBase
 {
+/**
+     * <summary>
+     *     Lista promociones con filtros opcionales por huarique, dueño o estado.
+     *     GET /promos
+     * </summary>
+     */
     [HttpGet]
     [SwaggerOperation("List Promos", "Returns promos with optional filters.", OperationId = "ListPromos")]
     [SwaggerResponse(200, "Lista de promos.", typeof(IEnumerable<PromoResource>))]
@@ -42,6 +48,12 @@ public class PromosController(
         return Ok(result.Select(PromoResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
+ /**
+     * <summary>
+     *     Devuelve el detalle de una promo por id.
+     *     GET /promos/:id
+     * </summary>
+     */
     [HttpGet("{id:int}")]
     [SwaggerOperation("Get Promo", "Returns a single promo by ID.", OperationId = "GetPromo")]
     [SwaggerResponse(200, "Promo encontrada.", typeof(PromoResource))]
@@ -53,6 +65,12 @@ public class PromosController(
         return Ok(PromoResourceFromEntityAssembler.ToResourceFromEntity(promo));
     }
 
+/**
+     * <summary>
+     *     Crea una nueva promoción asociada a un huarique.
+     *     POST /promos
+     * </summary>
+     */
     [HttpPost]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Create Promo", "Creates a new promo.", OperationId = "CreatePromo")]
@@ -84,6 +102,12 @@ public class PromosController(
             PromoResourceFromEntityAssembler.ToResourceFromEntity(entity));
     }
 
+/**
+     * <summary>
+     *     Actualiza parcialmente los campos de una promo existente.
+     *     PATCH /promos/:id
+     * </summary>
+     */
     [HttpPatch("{id:int}")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Patch Promo", "Partially updates a promo.", OperationId = "PatchPromo")]
@@ -119,6 +143,12 @@ public class PromosController(
         return Ok(PromoResourceFromEntityAssembler.ToResourceFromEntity(promo));
     }
 
+ /**
+     * <summary>
+     *     Elimina una promoción del catálogo.
+     *     DELETE /promos/:id
+     * </summary>
+     */
     [HttpDelete("{id:int}")]
     [SwaggerOperation("Delete Promo", "Deletes a promo.", OperationId = "DeletePromo")]
     [SwaggerResponse(204, "Promo eliminada.")]
@@ -133,6 +163,12 @@ public class PromosController(
         return NoContent();
     }
 
+/**
+     * <summary>
+     *     Registra un uso de la promo e incrementa su contador.
+     *     POST /promos/:id/use
+     * </summary>
+     */
     [HttpPost("{id:int}/use")]
     [SwaggerOperation("Use Promo", "Increments the usage counter of a promo.", OperationId = "UsePromo")]
     [SwaggerResponse(200, "Uso registrado.", typeof(PromoResource))]
