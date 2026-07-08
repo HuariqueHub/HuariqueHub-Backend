@@ -17,6 +17,12 @@ public class AuthController(
     ITokenService tokenService,
     IUnitOfWork unitOfWork) : ControllerBase
 {
+ /**
+   * <summary>
+   *     Autentica al usuario con email y contraseña; devuelve un JWT.
+   *     POST /auth/login
+   * </summary>
+   */
     [HttpPost("login")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Login", "Authenticate with email and password, returns a JWT token.", OperationId = "Login")]
@@ -42,6 +48,12 @@ public class AuthController(
             user.Role.ToString().ToLowerInvariant(), token));
     }
 
+ /**
+   * <summary>
+   *     Obtiene el perfil público de un usuario por su identificador.
+   *     GET /auth/users/:id
+   * </summary>
+   */
     [HttpGet("users/{id:int}")]
     [SwaggerOperation("Get Profile", "Returns the profile of a user by ID.", OperationId = "GetProfile")]
     [SwaggerResponse(200, "Perfil encontrado.", typeof(UserResource))]
@@ -56,6 +68,12 @@ public class AuthController(
             user.Role.ToString().ToLowerInvariant(), user.CreatedAt, user.UpdatedAt));
     }
 
+/**
+   * <summary>
+   *     Actualiza el nombre visible del perfil de un usuario.
+   *     PATCH /auth/users/:id
+   * </summary>
+   */
     [HttpPatch("users/{id:int}")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Update Profile", "Updates the display name of a user.", OperationId = "UpdateProfile")]
@@ -87,6 +105,12 @@ public class AuthController(
             user.Role.ToString().ToLowerInvariant(), user.CreatedAt, user.UpdatedAt));
     }
 
+/**
+   * <summary>
+   *     Elimina permanentemente la cuenta de un usuario.
+   *     DELETE /auth/users/:id
+   * </summary>
+   */
     [HttpDelete("users/{id:int}")]
     [SwaggerOperation("Delete Account", "Permanently deletes a user account.", OperationId = "DeleteAccount")]
     [SwaggerResponse(200, "Cuenta eliminada.", typeof(MessageResource))]
@@ -103,6 +127,12 @@ public class AuthController(
         return Ok(new MessageResource("Cuenta eliminada correctamente."));
     }
 
+/**
+   * <summary>
+   *     Inicia el flujo de recuperación de contraseña (US16).
+   *     POST /auth/forgot-password
+   * </summary>
+   */
     [HttpPost("forgot-password")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Forgot Password", "Starts the password recovery flow for a registered email.", OperationId = "ForgotPassword")]
@@ -122,6 +152,12 @@ public class AuthController(
             : "Si el correo está registrado, enviaremos instrucciones para restablecer la contraseña."));
     }
 
+ /**
+   * <summary>
+   *     Establece una nueva contraseña para un correo registrado.
+   *     POST /auth/reset-password
+   * </summary>
+   */
     [HttpPost("reset-password")]
     [Consumes(MediaTypeNames.Application.Json)]
     [SwaggerOperation("Reset Password", "Sets a new password for a registered email.", OperationId = "ResetPassword")]
