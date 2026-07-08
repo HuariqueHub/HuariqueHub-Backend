@@ -32,4 +32,7 @@ public class TokenService(IConfiguration configuration) : ITokenService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+    
+    private static TimeSpan DefaultTokenLifetime => TimeSpan.FromDays(7);
+
 }
