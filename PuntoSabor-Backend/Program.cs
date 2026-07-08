@@ -184,5 +184,10 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "Healthy",
+    service = "PuntoSabor Backend"
+}));
 app.MapControllers();
 app.Run();
